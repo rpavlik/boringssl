@@ -87,6 +87,8 @@ enum {
   BIO_CONN_S_OK,
 };
 
+typedef int (*bio_info_callback)(const BIO *bio, int state, int ret);
+
 typedef struct bio_connect_st {
   int state;
 
@@ -105,7 +107,7 @@ typedef struct bio_connect_st {
   // info_callback is called when the connection is initially made
   // callback(BIO,state,ret);  The callback should return 'ret', state is for
   // compatibility with the SSL info_callback.
-  int (*info_callback)(const BIO *bio, int state, int ret);
+  bio_info_cb info_callback;
 } BIO_CONNECT;
 
 #if !defined(OPENSSL_WINDOWS)
@@ -167,7 +169,7 @@ static int split_host_and_port(char **out_host, char **out_port, const char *nam
 
 static int conn_state(BIO *bio, BIO_CONNECT *c) {
   int ret = -1, i;
-  int (*cb)(const BIO *, int, int) = NULL;
+  bio_info_cb cb = NULL;
 
   if (c->info_callback != NULL) {
     cb = c->info_callback;
@@ -466,8 +468,8 @@ static long conn_ctrl(BIO *bio, int cmd, long num, void *ptr) {
     case BIO_CTRL_FLUSH:
       break;
     case BIO_CTRL_GET_CALLBACK: {
-      int (**fptr)(const BIO *bio, int state, int xret);
-      fptr = (int (**)(const BIO *bio, int state, int xret))ptr;
+      bio_info_cb *fptr;
+      fptr = (bio_info_cb *)ptr;
       *fptr = data->info_callback;
     } break;
     default:
@@ -485,7 +487,7 @@ static long conn_callback_ctrl(BIO *bio, int cmd, bio_info_cb fp) {
 
   switch (cmd) {
     case BIO_CTRL_SET_CALLBACK:
-      data->info_callback = (int (*)(const struct bio_st *, int, int))fp;
+      data->info_callback = fp;
       break;
     default:
       ret = 0;

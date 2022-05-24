@@ -243,8 +243,7 @@ OPENSSL_EXPORT int BIO_method_type(const BIO *bio);
 // with |BIO_CB_RETURN| if the callback is being made after the operation in
 // question. In that case, |return_value| will contain the return value from
 // the operation.
-typedef long (*bio_info_cb)(BIO *bio, int event, const char *parg, int cmd,
-                            long larg, long return_value);
+typedef int (*bio_info_cb)(BIO *bio, int state, int ret);
 
 // BIO_callback_ctrl allows the callback function to be manipulated. The |cmd|
 // arg will generally be |BIO_CTRL_SET_CALLBACK| but arbitrary command values
