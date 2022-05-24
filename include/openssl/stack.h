@@ -86,15 +86,19 @@ extern "C" {
 // STACK_OF(FOO), the macros would be sk_FOO_new, sk_FOO_pop etc.
 
 
-// stack_free_func is a function that frees an element in a stack. Note its
-// actual type is void (*)(T *) for some T. Low-level |sk_*| functions will be
-// passed a type-specific wrapper to call it correctly.
-typedef void (*stack_free_func)(void *ptr);
+// stack_free_func is a type-erased function that frees an element in a stack.
+// Note its actual type is void (*)(T *) for some T. Low-level |sk_*| functions
+// will be passed a type-specific wrapper to call it correctly.
+// It's not guaranteed by the standard that function pointers can be
+// round-tripped to/from void*, but dlsym/GetProcAddress do it.
+typedef void *stack_free_func;
 
-// stack_copy_func is a function that copies an element in a stack. Note its
-// actual type is T *(*)(T *) for some T. Low-level |sk_*| functions will be
-// passed a type-specific wrapper to call it correctly.
-typedef void *(*stack_copy_func)(void *ptr);
+// stack_copy_func is a type-erased function that copies an element in a stack.
+// Note its actual type is T *(*)(T *) for some T. Low-level |sk_*| functions
+// will be passed a type-specific wrapper to call it correctly.
+// It's not guaranteed by the standard that function pointers can be
+// round-tripped to/from void*, but dlsym/GetProcAddress do it.
+typedef void *stack_copy_func;
 
 // stack_cmp_func is a comparison function that returns a value < 0, 0 or > 0
 // if |*a| is less than, equal to or greater than |*b|, respectively.  Note the
@@ -103,7 +107,8 @@ typedef void *(*stack_copy_func)(void *ptr);
 //
 // Note its actual type is int (*)(const T **, const T **). Low-level |sk_*|
 // functions will be passed a type-specific wrapper to call it correctly.
-typedef int (*stack_cmp_func)(const void **a, const void **b);
+typedef void *stack_cmp_func;
+typedef int (*stack_cmp_func_partially_typed)(const void **a, const void **b);
 
 // stack_st contains an array of pointers. It is not designed to be used
 // directly, rather the wrapper macros should be used.

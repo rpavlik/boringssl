@@ -149,7 +149,8 @@ void sk_pop_free_ex(_STACK *sk, void (*call_free_func)(stack_free_func, void *),
 // directly. This is undefined in C. Some callers called |sk_pop_free| directly,
 // so we must maintain a compatibility version for now.
 static void call_free_func_legacy(stack_free_func func, void *ptr) {
-  func(ptr);
+  typedef void (*stack_free_func_partially_typed)(void *);
+  ((stack_free_func_partially_typed)func)(ptr);
 }
 
 void sk_pop_free(_STACK *sk, stack_free_func free_func) {
