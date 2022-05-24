@@ -92,7 +92,8 @@ extern "C" {
 // This function's actual type signature is int (*)(const T*, const T*). The
 // low-level |lh_*| functions will be passed a type-specific wrapper to call it
 // correctly.
-typedef int (*lhash_cmp_func)(const void *a, const void *b);
+typedef void *lhash_cmp_func;
+typedef int (*lhash_cmp_func_partially_typed)(const void *a, const void *b);
 typedef int (*lhash_cmp_func_helper)(lhash_cmp_func func, const void *a,
                                      const void *b);
 
@@ -102,7 +103,8 @@ typedef int (*lhash_cmp_func_helper)(lhash_cmp_func func, const void *a,
 // This function's actual type signature is uint32_t (*)(const T*). The
 // low-level |lh_*| functions will be passed a type-specific wrapper to call it
 // correctly.
-typedef uint32_t (*lhash_hash_func)(const void *a);
+typedef void *lhash_hash_func;
+typedef uint32_t (*lhash_hash_func_partially_typed)(const void *a);
 typedef uint32_t (*lhash_hash_func_helper)(lhash_hash_func func, const void *a);
 
 typedef struct lhash_st _LHASH;
